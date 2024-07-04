@@ -7,7 +7,7 @@ let Todo = () => {
     }
     
     let [task, setTask] = useState("");
-    let [items, setItems] = useState(getData());
+    let [items, setItems] = useState(getData() || []);
     let [toggleBtn, setToggleBtn] = useState(false);
     let [editIndex, setEditIndex] = useState();
 
@@ -34,6 +34,8 @@ let Todo = () => {
             const mynewdata = {
                 id: new Date().getTime().toString(),
                 taskdata: task,
+                completed: false, // Add completed property
+                timestamp: new Date().toLocaleString() // Add timestamp
             };
             setItems([...items, mynewdata]);
             setTask("");
@@ -56,6 +58,17 @@ let Todo = () => {
         setToggleBtn(true);
     }
 
+    function markComplete(id) {
+        setItems(
+            items.map((element) => {
+                if (element.id === id) {
+                    return { ...element, completed: true };
+                }
+                return element;
+            })
+        );
+    }
+
     return (
         <>
             <div className="container">
@@ -68,11 +81,21 @@ let Todo = () => {
                         <button className="btn btn-primary" id="add" onClick={addItem}>Add</button>
                         <ul id="task-list">
                             {
-                                items.map((element) => {
-                                    return (
-                                        <li key={element.id}> {element.taskdata} <i className="bi bi-pen-fill" id="edit-btn" onClick={() => editItem(element.id)}></i> <i className="bi bi-trash-fill" id="delete-btn" onClick={() => deleteItem(element.id)}></i> </li>
-                                    );
-                                })
+                                items.map((element) => (
+                                    <li key={element.id}>
+                                        {element.taskdata} 
+                                        {!element.completed && (
+                                            <>
+                                                <i className="bi bi-pen-fill" id="edit-btn" onClick={() => editItem(element.id)}></i>
+                                                <i className="bi bi-trash-fill" id="delete-btn" onClick={() => deleteItem(element.id)}></i>
+                                            </>
+                                        )}
+                                        {element.completed && <span style={{ marginLeft: '10px', color: 'green' }}>(Completed on {element.timestamp})</span>}
+                                        {!element.completed && (
+                                            <button className="btn btn-success btn-sm" onClick={() => markComplete(element.id)}>Mark Complete</button>
+                                        )}
+                                    </li>
+                                ))
                             }
                         </ul>
                     </div>
